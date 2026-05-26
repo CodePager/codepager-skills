@@ -5,6 +5,7 @@ This repo is for public-facing CodePager skills, not the private control-plane a
 Current skills:
 
 - [codepager-account-onboarding](/srv/pager/repos/codepager-skills/skills/codepager-account-onboarding/SKILL.md)
+- [codepager-jetclaw-project-setup](/srv/pager/repos/codepager-skills/skills/codepager-jetclaw-project-setup/SKILL.md)
 - [codepager-pager-instrumentation](/srv/pager/repos/codepager-skills/skills/codepager-pager-instrumentation/SKILL.md)
 
 Rules:
