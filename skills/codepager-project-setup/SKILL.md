@@ -37,12 +37,17 @@ stop. Derive the slug from the name unless the user gives one.
    `~/.openclaw/credentials/assistant.env`.
 3. Confirm the project name from the user's message, `CODEPAGER_PROJECT_NAME`,
    or an explicit CLI `--name`.
-4. Run `PYTHONDONTWRITEBYTECODE=1 scripts/setup_project.py --name <project-name>`.
-   Pass `--env <path-to-env>` only when auto-discovery will not find it.
-5. Record the returned project slug in durable local notes if the target repo
-   has such notes. Use `--json` only if you need the project id for an API call.
+4. Run the setup script with `python3`, not `python`:
+
+   ```bash
+   PYTHONDONTWRITEBYTECODE=1 python3 /root/.openclaw/workspace/skills/codepager-project-setup/scripts/setup_project.py --name <project-name>
+   ```
+
+   Use the local skill path if it is installed somewhere else. Pass
+   `--env <path-to-env>` only when auto-discovery will not find it.
+5. Use `--json` only if you need the project id for an API call.
 6. Stop after project setup. Do not add watchers, paging rules, repair dispatch,
-   or human escalation in this skill.
+   human escalation, or local documentation edits in this skill.
 
 ## Reply Shape
 
@@ -56,5 +61,7 @@ the user explicitly asks for machine-readable output.
 - Keep the full CodePager token in `.env` only.
 - Do not commit `.env` or token values.
 - Do not create local JSON/YAML as the source of CodePager project truth.
+- Do not edit local project docs or memory files unless the user explicitly
+  asks for documentation updates.
 - This skill only bootstraps the project. Understanding, watching, and paging
   are separate steps.
