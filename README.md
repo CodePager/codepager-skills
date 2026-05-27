@@ -7,5 +7,5 @@ This repo exists separately from the private CodePager site/app so agents can le
 ## Skills
 
 - `codepager-account-onboarding`
-- `codepager-jetclaw-project-setup`
+- `codepager-project-setup`
 - `codepager-pager-instrumentation`
