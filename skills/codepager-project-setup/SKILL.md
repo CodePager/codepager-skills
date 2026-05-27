@@ -25,9 +25,10 @@ CODEPAGER_TOKEN=cp_live_...
 If `CODEPAGER_TOKEN` is missing or invalid, ask the user to generate a scoped
 setup token in `app.codepager.com/settings` and store it in the agent `.env`.
 
-The project name should come from the user's message or the environment. If the
-project name is missing, ask the user what project to set up and stop. Derive
-the slug from the name unless the user gives one.
+The project name should come from the user's message or the environment. A
+natural request such as "set this project up in CodePager as Cal" is enough. If
+the project name is missing or genuinely ambiguous, ask one short question and
+stop. Derive the slug from the name unless the user gives one.
 
 ## Workflow
 
@@ -36,11 +37,19 @@ the slug from the name unless the user gives one.
    `~/.openclaw/credentials/assistant.env`.
 3. Confirm the project name from the user's message, `CODEPAGER_PROJECT_NAME`,
    or an explicit CLI `--name`.
-4. Run `scripts/setup_project.py --env <path-to-env> --name <project-name>`.
-5. Record the returned project id/slug in the agent's durable local notes if the
-   target repo has such notes.
+4. Run `PYTHONDONTWRITEBYTECODE=1 scripts/setup_project.py --name <project-name>`.
+   Pass `--env <path-to-env>` only when auto-discovery will not find it.
+5. Record the returned project slug in durable local notes if the target repo
+   has such notes. Use `--json` only if you need the project id for an API call.
 6. Stop after project setup. Do not add watchers, paging rules, repair dispatch,
    or human escalation in this skill.
+
+## Reply Shape
+
+Reply in one or two plain sentences. Say whether CodePager created or found the
+project, and include the project name, slug, and environment. Do not include raw
+`project_id=...`, `project_slug=...`, or `project_environment=...` lines unless
+the user explicitly asks for machine-readable output.
 
 ## Guardrails
 

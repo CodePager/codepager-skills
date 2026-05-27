@@ -112,6 +112,8 @@ def main():
     parser.add_argument("--name", default="", help="Project name, for example Cal.")
     parser.add_argument("--slug", default="", help="Project slug. Defaults to a slugified project name.")
     parser.add_argument("--environment", default="", help="Project environment. Defaults to CODEPAGER_PROJECT_ENVIRONMENT or production.")
+    parser.add_argument("--json", action="store_true", help="Print machine-readable JSON including the project id.")
+    parser.add_argument("--show-id", action="store_true", help="Include the project id in text output.")
     args = parser.parse_args()
 
     env_path, env = load_env(args.env)
@@ -140,12 +142,19 @@ def main():
 
     project = payload["project"]
     action = "created" if payload.get("created") else "found"
-    print(f"CodePager project {action}: {project['name']} ({project['slug']})")
-    print(f"project_id={project['id']}")
-    print(f"project_slug={project['slug']}")
-    print(f"project_environment={project['environment']}")
-    if env_path:
-        print(f"env_file={env_path}")
+    result = {
+        "ok": True,
+        "action": action,
+        "project": project,
+        "env_file": env_path,
+    }
+    if args.json:
+        print(json.dumps(result, sort_keys=True))
+        return
+
+    print(f"CodePager project {action}: {project['name']} ({project['slug']}, {project['environment']}).")
+    if args.show_id:
+        print(f"Project id: {project['id']}")
 
 
 if __name__ == "__main__":
