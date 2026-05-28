@@ -10,6 +10,7 @@ from pathlib import Path
 
 BLOCK_BEGIN_PREFIX = "<!-- CODEPAGER:PROJECT "
 BLOCK_END_PREFIX = "<!-- /CODEPAGER:PROJECT "
+CODEPAGER_DOC_NAME = "CODEPAGER.md"
 
 
 def parse_env(path):
@@ -114,20 +115,47 @@ def post_json(url, token, payload):
         return error.code, payload
 
 
-def project_pointer_block(project):
+def agent_pointer_block(project):
     slug = project["slug"]
     return "\n".join(
         [
             "## CodePager",
             f"{BLOCK_BEGIN_PREFIX}{slug} -->",
             "",
-            f"- CodePager project: `{project['name']}` (`{project['slug']}`, {project['environment']}), project id `{project['id']}`.",
-            "- This pointer is public-safe. Do not put `CODEPAGER_TOKEN` or paging credentials in this repo.",
-            "- Agents should use runtime-provided CodePager credentials when asked to understand, watch, diagnose, or repair this project.",
-            "- Reliability work should make background jobs, scheduled jobs, check-ins, user-facing promises, and paging paths visible in CodePager.",
-            "- If this map and CodePager disagree, verify against the live CodePager project and update the stale map.",
+            f"- CodePager cheat sheet: `{CODEPAGER_DOC_NAME}`.",
+            f"- Project: `{project['name']}` (`{project['slug']}`, {project['environment']}), project id `{project['id']}`.",
+            f"- Read `{CODEPAGER_DOC_NAME}` before doing CodePager-related work for this project.",
             "",
             f"{BLOCK_END_PREFIX}{slug} -->",
+            "",
+            "",
+        ]
+    )
+
+
+def codepager_doc(project):
+    command = f'PYTHONDONTWRITEBYTECODE=1 python3 scripts/setup_project.py --name "{project["name"]}" --project-root <project-root>'
+    return "\n".join(
+        [
+            "# CODEPAGER.md",
+            "",
+            "Public-safe CodePager cheat sheet for this project.",
+            "",
+            "## Project",
+            f"- Name: `{project['name']}`",
+            f"- Slug: `{project['slug']}`",
+            f"- Project ID: `{project['id']}`",
+            f"- Environment: `{project['environment']}`",
+            "",
+            "## What Exists Today",
+            "- `codepager-project-setup` creates or finds the CodePager project and refreshes this file.",
+            "- Run it from the installed `codepager-project-setup` skill directory:",
+            f"  `{command}`",
+            "",
+            "## Rules",
+            "- Use runtime-provided `CODEPAGER_TOKEN`; never commit tokens, paging credentials, webhook URLs, or private incident payloads.",
+            "- Do not invent watcher, repair, incident, or paging workflows from this file. Add them here only after the CodePager capability exists.",
+            "- If this file and CodePager disagree, verify against the live CodePager project and refresh this file.",
             "",
         ]
     )
@@ -142,35 +170,38 @@ def is_runtime_global_map(path):
     return parent.name == "workspace" and grandparent.name.startswith(".")
 
 
-def resolve_project_map(project_root, project_map, agents_file, env):
+def resolve_project_paths(project_root, project_map, agents_file, env):
     root = project_root or env.get("CODEPAGER_PROJECT_ROOT", "").strip()
-    explicit = (
+    explicit_map = (
         project_map
         or env.get("CODEPAGER_PROJECT_MAP", "").strip()
         or agents_file
         or env.get("CODEPAGER_AGENTS_FILE", "").strip()
     )
-    if root and not explicit:
-        explicit = os.path.join(root, "AGENTS.md")
-    if not explicit:
-        return ""
 
-    expanded = os.path.abspath(os.path.expanduser(explicit))
-    if is_runtime_global_map(expanded):
+    if not root and explicit_map:
+        root = os.path.dirname(os.path.abspath(os.path.expanduser(explicit_map)))
+    if not root:
+        return "", "", ""
+
+    root_abs = os.path.abspath(os.path.expanduser(root))
+    agents_path = os.path.abspath(os.path.expanduser(explicit_map or os.path.join(root_abs, "AGENTS.md")))
+    codepager_path = os.path.abspath(os.path.join(root_abs, CODEPAGER_DOC_NAME))
+
+    if is_runtime_global_map(agents_path) or is_runtime_global_map(root_abs):
         raise SystemExit(
-            "Refusing to write CodePager project state into a runtime-global AGENTS.md. "
-            "Pass --project-root for the real project repo or --project-map for a project-specific map."
+            "Refusing to write CodePager project state into a runtime-global workspace map. "
+            "Pass --project-root for the real project repo."
         )
 
-    if root:
-        root_abs = os.path.abspath(os.path.expanduser(root))
+    for label, path in (("project map", agents_path), ("CODEPAGER.md", codepager_path)):
         try:
-            inside_root = os.path.commonpath([root_abs, expanded]) == root_abs
+            inside_root = os.path.commonpath([root_abs, path]) == root_abs
         except ValueError:
             inside_root = False
         if not inside_root:
-            raise SystemExit("--project-map/--agents-file must live inside --project-root.")
-    return expanded
+            raise SystemExit(f"{label} must live inside --project-root.")
+    return root_abs, agents_path, codepager_path
 
 
 def codepager_section_bounds(content):
@@ -183,12 +214,12 @@ def codepager_section_bounds(content):
     return match.start(), match.end() + next_heading.start()
 
 
-def upsert_project_pointer(path, project):
+def upsert_agent_pointer(path, project):
     slug = project["slug"]
     expanded = os.path.expanduser(path)
     begin = f"{BLOCK_BEGIN_PREFIX}{slug} -->"
     end = f"{BLOCK_END_PREFIX}{slug} -->"
-    block = project_pointer_block(project)
+    block = agent_pointer_block(project)
 
     if os.path.exists(expanded):
         with open(expanded, "r", encoding="utf-8") as handle:
@@ -218,15 +249,35 @@ def upsert_project_pointer(path, project):
         if section_start != -1:
             existing = content[section_start:section_stop]
             if project["id"] in existing and project["slug"] in existing:
-                return expanded, False
-            raise SystemExit(
-                f"{expanded} already has an unmarked CodePager section. "
-                "Review it manually instead of overwriting project instructions."
-            )
-        content = content.rstrip() + "\n\n" + block
+                content = content[:section_start].rstrip() + "\n\n" + block + content[section_stop:].lstrip()
+            else:
+                raise SystemExit(
+                    f"{expanded} already has an unmarked CodePager section. "
+                    "Review it manually instead of overwriting project instructions."
+                )
+        else:
+            content = content.rstrip() + "\n\n" + block
 
     with open(expanded, "w", encoding="utf-8") as handle:
         handle.write(content)
+    return expanded, True
+
+
+def write_codepager_doc(path, project):
+    expanded = os.path.expanduser(path)
+    next_content = codepager_doc(project)
+    if os.path.exists(expanded):
+        with open(expanded, "r", encoding="utf-8") as handle:
+            current = handle.read()
+        if current == next_content:
+            return expanded, False
+        if "CODEPAGER_TOKEN=" in current or "cp_live_" in current:
+            raise SystemExit(
+                f"{expanded} appears to contain a token. Refusing to overwrite; remove secrets manually first."
+            )
+
+    with open(expanded, "w", encoding="utf-8") as handle:
+        handle.write(next_content)
     return expanded, True
 
 
@@ -237,8 +288,8 @@ def main():
     parser.add_argument("--name", default="", help="Project name, for example Cal.")
     parser.add_argument("--slug", default="", help="Project slug. Defaults to a slugified project name.")
     parser.add_argument("--environment", default="", help="Project environment. Defaults to CODEPAGER_PROJECT_ENVIRONMENT or production.")
-    parser.add_argument("--project-root", default="", help="Path to the real project repository/root. When set, updates <project-root>/AGENTS.md.")
-    parser.add_argument("--project-map", default="", help="Path to a project-specific map file to update with a CodePager pointer.")
+    parser.add_argument("--project-root", default="", help="Path to the real project repository/root. When set, writes <project-root>/CODEPAGER.md and updates <project-root>/AGENTS.md.")
+    parser.add_argument("--project-map", default="", help="Path to a project-specific AGENTS.md/map file to point at CODEPAGER.md.")
     parser.add_argument("--agents-file", default="", help="Deprecated alias for --project-map. Must be project-specific, not a runtime-global AGENTS.md.")
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON including the project id.")
     parser.add_argument("--show-id", action="store_true", help="Include the project id in text output.")
@@ -270,19 +321,25 @@ def main():
 
     project = payload["project"]
     action = "created" if payload.get("created") else "found"
-    agents_file = resolve_project_map(args.project_root, args.project_map, args.agents_file, env)
+    project_root, agents_file, codepager_file = resolve_project_paths(args.project_root, args.project_map, args.agents_file, env)
     agents_file_written = ""
     agents_file_changed = False
-    if agents_file:
-        agents_file_written, agents_file_changed = upsert_project_pointer(agents_file, project)
+    codepager_file_written = ""
+    codepager_file_changed = False
+    if project_root:
+        agents_file_written, agents_file_changed = upsert_agent_pointer(agents_file, project)
+        codepager_file_written, codepager_file_changed = write_codepager_doc(codepager_file, project)
 
     result = {
         "ok": True,
         "action": action,
         "project": project,
         "env_file": env_path,
+        "project_root": project_root,
         "agents_file": agents_file_written,
         "agents_file_changed": agents_file_changed,
+        "codepager_file": codepager_file_written,
+        "codepager_file_changed": codepager_file_changed,
     }
     if args.json:
         print(json.dumps(result, sort_keys=True))
@@ -292,6 +349,9 @@ def main():
     if agents_file_written:
         verb = "Updated" if agents_file_changed else "Verified"
         print(f"{verb} project map: {agents_file_written}")
+    if codepager_file_written:
+        verb = "Updated" if codepager_file_changed else "Verified"
+        print(f"{verb} CodePager cheat sheet: {codepager_file_written}")
     if args.show_id:
         print(f"Project id: {project['id']}")
 

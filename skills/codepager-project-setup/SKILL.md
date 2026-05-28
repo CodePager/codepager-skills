@@ -26,10 +26,10 @@ Only add `--env <path>` if the token is not in the process environment and the
 env file path is already known from the user's message, `CODEPAGER_ENV_FILE`,
 local `.env`, or local runtime instructions.
 
-Use `--project-root` to write a public-safe CodePager section to the target
-project's own `AGENTS.md`. If the project does not have a repo-style
-`AGENTS.md`, use `--project-map <path>` for an explicit project-specific map
-file. If the command succeeds, reply and stop.
+Use `--project-root` to write a public-safe `CODEPAGER.md` cheat sheet at the
+target project root and add a tiny pointer in the target project's own
+`AGENTS.md`. If the project uses a different project-specific agent map, pass
+`--project-map <path>`. If the command succeeds, reply and stop.
 
 ## Required Environment
 
@@ -77,7 +77,8 @@ stop. Derive the slug from the name unless the user gives one.
    Pass `--env <path-to-env>` when the token lives in a credentials file that
    is not already named by `CODEPAGER_ENV_FILE` or the current working
    directory's `.env`. Pass `--project-map <path>` only when the project's
-   durable agent map is not `<project-root>/AGENTS.md`.
+   durable agent map is not `<project-root>/AGENTS.md`. The cheat sheet still
+   goes at `<project-root>/CODEPAGER.md`.
 6. Use `--json` only if you need the project id for an API call.
 7. Stop after project setup. Do not add watchers, paging rules, repair dispatch,
    human escalation, or local documentation edits in this skill.
@@ -91,23 +92,18 @@ stop. Derive the slug from the name unless the user gives one.
   likely env locations or the local runtime docs needed to find the env file.
 - If the first run succeeds, do not run extra discovery commands.
 
-## Project Map Pointer
+## Project Files
 
-The setup script writes a public-safe block delimited by
-`<!-- CODEPAGER:PROJECT <slug> -->` markers under a `## CodePager` section. It
-belongs in the project map, not in the agent runtime map. It includes only:
+The setup script writes two public-safe project files:
 
-- project name
-- slug
-- project id
-- environment
-- reminder to use runtime `CODEPAGER_TOKEN` and never commit tokens
+- `<project-root>/CODEPAGER.md`: the brutally short CodePager cheat sheet.
+- `<project-root>/AGENTS.md` or `--project-map`: a tiny pointer to
+  `CODEPAGER.md`.
 
-This pointer is intended for public repositories. It is not the source of
-truth; CodePager's control plane is. The pointer helps future agents resolve
-the right CodePager project without relying on chat memory, and gives them the
-minimum instruction to use CodePager for understanding, watching, diagnosing,
-and repair.
+`CODEPAGER.md` should only describe CodePager capabilities that actually exist.
+Right now that is `codepager-project-setup`: create/find the project and
+refresh the cheat sheet. Do not describe watcher, repair, incident, or paging
+flows until those CodePager capabilities are built.
 
 ## Reply Shape
 
@@ -121,8 +117,8 @@ the user explicitly asks for machine-readable output.
 - Keep the full CodePager token in `.env` only.
 - Do not commit `.env` or token values.
 - Do not create local JSON/YAML as the source of CodePager project truth.
-- Only edit the target project's `AGENTS.md` or equivalent project-specific
-  map with the public-safe CodePager pointer.
+- Only edit the target project's `CODEPAGER.md` and `AGENTS.md` or equivalent
+  project-specific map with public-safe CodePager setup information.
 - Never write CodePager project state into the agent runtime's root
   `AGENTS.md`, host-level workspace map, or generic assistant identity files.
 - Do not edit memory files or broader project docs unless the user explicitly
