@@ -13,6 +13,20 @@ CodePager for the first time.
 Create or find one CodePager project from the agent's environment without
 inventing repo-local project state.
 
+## Fast Path
+
+If the user's message names the project, do not read broad workspace memory,
+project docs, or the script source first. From this skill directory, run:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/setup_project.py --name "<project-name>"
+```
+
+Only add `--env <path>` if the token is not in the process environment and the
+env file path is already known from the user's message, `CODEPAGER_ENV_FILE`,
+local `.env`, or local runtime instructions. If the command succeeds, reply and
+stop.
+
 ## Required Environment
 
 Read the target agent env safely. Do not print token values.
@@ -20,6 +34,12 @@ Read the target agent env safely. Do not print token values.
 ```text
 CODEPAGER_BASE_URL=https://app.codepager.com
 CODEPAGER_TOKEN=cp_live_...
+```
+
+Instead of storing the token in the current `.env`, an agent may store:
+
+```text
+CODEPAGER_ENV_FILE=/path/to/runtime/credentials.env
 ```
 
 If `CODEPAGER_TOKEN` is missing or invalid, ask the user to generate a scoped
@@ -32,7 +52,7 @@ stop. Derive the slug from the name unless the user gives one.
 
 ## Workflow
 
-1. Read local instructions for the target agent/project first.
+1. Prefer the fast path when the project name is clear.
 2. Find the credentials env file from local instructions, shell environment, or
    the user's message. Common examples are `.env`, a runtime credentials file,
    or a path provided through `CODEPAGER_ENV_FILE`.
@@ -52,6 +72,15 @@ stop. Derive the slug from the name unless the user gives one.
 5. Use `--json` only if you need the project id for an API call.
 6. Stop after project setup. Do not add watchers, paging rules, repair dispatch,
    human escalation, or local documentation edits in this skill.
+
+## Inspection Budget
+
+- Do not read the bundled script source before the first run.
+- Do not read broad memory files, project docs, or user profile files for a
+  simple named project setup.
+- If the first run fails because `CODEPAGER_TOKEN` is missing, inspect only
+  likely env locations or the local runtime docs needed to find the env file.
+- If the first run succeeds, do not run extra discovery commands.
 
 ## Reply Shape
 

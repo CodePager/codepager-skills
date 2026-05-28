@@ -56,6 +56,14 @@ def load_env(explicit):
             values.update(parse_env(path))
             break
 
+    nested_env = values.get("CODEPAGER_ENV_FILE") or values.get("CODEPAGER_ENV")
+    if nested_env:
+        nested_path = os.path.expanduser(nested_env.strip())
+        if os.path.exists(nested_path) and nested_path != chosen:
+            nested_values = parse_env(nested_path)
+            nested_values.update(values)
+            values = nested_values
+
     for key, value in os.environ.items():
         if key.startswith("CODEPAGER_"):
             values[key] = value
