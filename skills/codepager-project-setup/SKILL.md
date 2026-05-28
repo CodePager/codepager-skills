@@ -19,13 +19,17 @@ If the user's message names the project, do not read broad workspace memory,
 project docs, or the script source first. From this skill directory, run:
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 python3 scripts/setup_project.py --name "<project-name>"
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/setup_project.py --name "<project-name>" --agents-file <path-to-AGENTS.md>
 ```
 
 Only add `--env <path>` if the token is not in the process environment and the
 env file path is already known from the user's message, `CODEPAGER_ENV_FILE`,
-local `.env`, or local runtime instructions. If the command succeeds, reply and
-stop.
+local `.env`, or local runtime instructions.
+
+Use `--agents-file` to write a public-safe CodePager pointer to the target
+project's agent instructions. Prefer an existing `AGENTS.md`; if the target
+project has no agent instructions file, create `AGENTS.md` at the project root.
+If the command succeeds, reply and stop.
 
 ## Required Environment
 
@@ -53,24 +57,26 @@ stop. Derive the slug from the name unless the user gives one.
 ## Workflow
 
 1. Prefer the fast path when the project name is clear.
-2. Find the credentials env file from local instructions, shell environment, or
+2. Identify the target project instructions file. Prefer `AGENTS.md` at the
+   target project root. This file may be public.
+3. Find the credentials env file from local instructions, shell environment, or
    the user's message. Common examples are `.env`, a runtime credentials file,
    or a path provided through `CODEPAGER_ENV_FILE`.
-3. Confirm the project name from the user's message, `CODEPAGER_PROJECT_NAME`,
+4. Confirm the project name from the user's message, `CODEPAGER_PROJECT_NAME`,
    or an explicit CLI `--name`.
-4. Run the bundled setup script with `python3`, not `python`. Use the actual
+5. Run the bundled setup script with `python3`, not `python`. Use the actual
    directory where this skill is installed:
 
    ```bash
    cd <installed-codepager-project-setup-skill-dir>
-   PYTHONDONTWRITEBYTECODE=1 python3 scripts/setup_project.py --name <project-name>
+   PYTHONDONTWRITEBYTECODE=1 python3 scripts/setup_project.py --name <project-name> --agents-file <path-to-AGENTS.md>
    ```
 
    Pass `--env <path-to-env>` when the token lives in a credentials file that
    is not already named by `CODEPAGER_ENV_FILE` or the current working
    directory's `.env`.
-5. Use `--json` only if you need the project id for an API call.
-6. Stop after project setup. Do not add watchers, paging rules, repair dispatch,
+6. Use `--json` only if you need the project id for an API call.
+7. Stop after project setup. Do not add watchers, paging rules, repair dispatch,
    human escalation, or local documentation edits in this skill.
 
 ## Inspection Budget
@@ -81,6 +87,21 @@ stop. Derive the slug from the name unless the user gives one.
 - If the first run fails because `CODEPAGER_TOKEN` is missing, inspect only
   likely env locations or the local runtime docs needed to find the env file.
 - If the first run succeeds, do not run extra discovery commands.
+
+## AGENTS.md Pointer
+
+The setup script writes a public-safe block delimited by
+`<!-- CODEPAGER:PROJECT <slug> -->` markers. It includes only:
+
+- project name
+- slug
+- project id
+- environment
+- reminder to use runtime `CODEPAGER_TOKEN` and never commit tokens
+
+This pointer is intended for public repositories. It is not the source of truth;
+CodePager's control plane is. The pointer helps future agents resolve the right
+CodePager project without relying on chat memory.
 
 ## Reply Shape
 
@@ -94,7 +115,8 @@ the user explicitly asks for machine-readable output.
 - Keep the full CodePager token in `.env` only.
 - Do not commit `.env` or token values.
 - Do not create local JSON/YAML as the source of CodePager project truth.
-- Do not edit local project docs or memory files unless the user explicitly
-  asks for documentation updates.
+- Only edit the target `AGENTS.md` or equivalent agent-instructions file with
+  the public-safe CodePager pointer. Do not edit memory files or broader project
+  docs unless the user explicitly asks for documentation updates.
 - This skill only bootstraps the project. Understanding, watching, and paging
   are separate steps.
