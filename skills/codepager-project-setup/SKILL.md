@@ -1,6 +1,6 @@
 ---
 name: codepager-project-setup
-description: Use when an agent host needs to create or find a CodePager project using CODEPAGER_TOKEN from its environment or credentials file. Applies to OpenClaw, Codex, Jetclaw, personal agents, and server agents bootstrapping any real project.
+description: Use when an agent host needs to create or find a CodePager project using CODEPAGER_TOKEN from its environment or credentials file. Applies to Codex, personal agents, server agents, and other agent runtimes bootstrapping any real project.
 ---
 
 # CodePager Project Setup
@@ -33,18 +33,22 @@ stop. Derive the slug from the name unless the user gives one.
 ## Workflow
 
 1. Read local instructions for the target agent/project first.
-2. Find the credentials env file, usually `.env` or
-   `~/.openclaw/credentials/assistant.env`.
+2. Find the credentials env file from local instructions, shell environment, or
+   the user's message. Common examples are `.env`, a runtime credentials file,
+   or a path provided through `CODEPAGER_ENV_FILE`.
 3. Confirm the project name from the user's message, `CODEPAGER_PROJECT_NAME`,
    or an explicit CLI `--name`.
-4. Run the setup script with `python3`, not `python`:
+4. Run the bundled setup script with `python3`, not `python`. Use the actual
+   directory where this skill is installed:
 
    ```bash
-   PYTHONDONTWRITEBYTECODE=1 python3 /root/.openclaw/workspace/skills/codepager-project-setup/scripts/setup_project.py --name <project-name>
+   cd <installed-codepager-project-setup-skill-dir>
+   PYTHONDONTWRITEBYTECODE=1 python3 scripts/setup_project.py --name <project-name>
    ```
 
-   Use the local skill path if it is installed somewhere else. Pass
-   `--env <path-to-env>` only when auto-discovery will not find it.
+   Pass `--env <path-to-env>` when the token lives in a credentials file that
+   is not already named by `CODEPAGER_ENV_FILE` or the current working
+   directory's `.env`.
 5. Use `--json` only if you need the project id for an API call.
 6. Stop after project setup. Do not add watchers, paging rules, repair dispatch,
    human escalation, or local documentation edits in this skill.

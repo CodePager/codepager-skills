@@ -2,7 +2,6 @@
 import argparse
 import json
 import os
-from pathlib import Path
 import re
 import sys
 import urllib.error
@@ -37,8 +36,6 @@ def candidate_env_paths(explicit):
     paths.extend(
         [
             ".env",
-            str(Path.home() / ".openclaw" / "credentials" / "assistant.env"),
-            "/root/.openclaw/credentials/assistant.env",
         ]
     )
 
@@ -107,7 +104,7 @@ def post_json(url, token, payload):
 
 def main():
     parser = argparse.ArgumentParser(description="Create or find a CodePager project for an agent host.")
-    parser.add_argument("--env", default="", help="Path to the agent env file. Defaults to .env or ~/.openclaw/credentials/assistant.env.")
+    parser.add_argument("--env", default="", help="Path to an agent env file. Defaults to CODEPAGER_ENV_FILE, CODEPAGER_ENV, or .env.")
     parser.add_argument("--base-url", default="", help="CodePager base URL. Defaults to CODEPAGER_BASE_URL or https://app.codepager.com.")
     parser.add_argument("--name", default="", help="Project name, for example Cal.")
     parser.add_argument("--slug", default="", help="Project slug. Defaults to a slugified project name.")
@@ -120,7 +117,7 @@ def main():
     base_url = (args.base_url or env.get("CODEPAGER_BASE_URL") or "https://app.codepager.com").rstrip("/")
     token = env.get("CODEPAGER_TOKEN", "").strip()
     if not token:
-        env_hint = args.env or env_path or ".env or ~/.openclaw/credentials/assistant.env"
+        env_hint = args.env or env_path or "CODEPAGER_ENV_FILE, CODEPAGER_ENV, or .env"
         raise SystemExit(f"CODEPAGER_TOKEN is missing. Generate a setup token in app.codepager.com/settings and add it to {env_hint}.")
 
     name = args.name or env.get("CODEPAGER_PROJECT_NAME", "").strip()
