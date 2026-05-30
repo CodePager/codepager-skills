@@ -11,6 +11,7 @@ from pathlib import Path
 BLOCK_BEGIN_PREFIX = "<!-- CODEPAGER:PROJECT "
 BLOCK_END_PREFIX = "<!-- /CODEPAGER:PROJECT "
 CODEPAGER_DOC_NAME = "CODEPAGER.md"
+SKILL_ROOT = Path(__file__).resolve().parents[1]
 
 
 def parse_env(path):
@@ -30,7 +31,7 @@ def parse_env(path):
     return values
 
 
-def candidate_env_paths(explicit):
+def candidate_env_paths(explicit, project_root=""):
     paths = []
     if explicit:
         paths.append(explicit)
@@ -38,6 +39,9 @@ def candidate_env_paths(explicit):
         value = os.environ.get(key, "").strip()
         if value:
             paths.append(value)
+    if project_root:
+        paths.append(os.path.join(project_root, ".env"))
+    paths.append(str(SKILL_ROOT / ".env"))
     paths.extend(
         [
             ".env",
@@ -52,10 +56,10 @@ def candidate_env_paths(explicit):
             yield expanded
 
 
-def load_env(explicit):
+def load_env(explicit, project_root=""):
     chosen = None
     values = {}
-    for path in candidate_env_paths(explicit):
+    for path in candidate_env_paths(explicit, project_root):
         if os.path.exists(path):
             chosen = path
             values.update(parse_env(path))
@@ -324,7 +328,7 @@ def main():
     parser.add_argument("--show-id", action="store_true", help="Include the project id in text output.")
     args = parser.parse_args()
 
-    env_path, env = load_env(args.env)
+    env_path, env = load_env(args.env, args.project_root)
     base_url = (args.base_url or env.get("CODEPAGER_BASE_URL") or "https://app.codepager.com").rstrip("/")
     token = env.get("CODEPAGER_TOKEN", "").strip()
     if not token:

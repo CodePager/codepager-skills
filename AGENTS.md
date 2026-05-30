@@ -9,6 +9,9 @@ This repo is for public-facing CodePager skills, not the private control-plane a
 Current skills:
 
 - [codepager-project-setup](/srv/pager/repos/codepager-skills/skills/codepager-project-setup/SKILL.md)
+- [codepager-onboarding](/srv/pager/repos/codepager-skills/skills/codepager-onboarding/SKILL.md)
+- [codepager-instrumentation](/srv/pager/repos/codepager-skills/skills/codepager-instrumentation/SKILL.md)
+- [codepager-pass](/srv/pager/repos/codepager-skills/skills/codepager-pass/SKILL.md)
 
 Rules:
 

@@ -17,6 +17,15 @@ skills/
   codepager-project-setup/
     SKILL.md
     scripts/setup_project.py
+  codepager-instrumentation/
+    SKILL.md
+    scripts/instrument.py
+  codepager-onboarding/
+    SKILL.md
+    scripts/onboard.py
+  codepager-pass/
+    SKILL.md
+    scripts/codepager_pass.py
 ```
 
 The private `CodePager/codepager-skills-harness` repo owns roadmap, evals,
@@ -27,6 +36,14 @@ future-skill doctrine, and private proof data.
 - [codepager-project-setup](skills/codepager-project-setup/SKILL.md): create or
   find a CodePager project, then write the project-local `CODEPAGER.md` cheat
   sheet and tiny `AGENTS.md` pointer.
+- [codepager-onboarding](skills/codepager-onboarding/SKILL.md): register a
+  private route alias map and keep only public-safe pager facts in
+  `CODEPAGER.md`.
+- [codepager-instrumentation](skills/codepager-instrumentation/SKILL.md): wire
+  one real project check into CodePager evidence, heartbeat, incident, and page
+  trail endpoints.
+- [codepager-pass](skills/codepager-pass/SKILL.md): run during project changes
+  to refresh CodePager evidence and open one deduped incident on proof failure.
 
 ## Setup Token
 
