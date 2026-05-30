@@ -4,16 +4,11 @@ This repo is for public-facing CodePager skills, not the private control-plane a
 
 ## Read First
 
-- [ARCHITECTURE.md](/srv/pager/repos/codepager-skills/ARCHITECTURE.md) for repo shape and boundaries.
 - [README.md](/srv/pager/repos/codepager-skills/README.md) for public setup notes.
 
 Current skills:
 
 - [codepager-project-setup](/srv/pager/repos/codepager-skills/skills/codepager-project-setup/SKILL.md)
-
-Validate:
-
-- `./scripts/validate.sh`
 
 Rules:
 
