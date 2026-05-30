@@ -8,6 +8,11 @@ clear way to detect failures, prove they are alive, and escalate real incidents.
 This repo stays separate from the private CodePager app so skills can be copied
 into different agent runtimes without carrying private control-plane code.
 
+## Doctrine
+
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [docs/harness-engineering.md](docs/harness-engineering.md)
+
 ## Active Skills
 
 - [codepager-project-setup](skills/codepager-project-setup/SKILL.md): create or
@@ -31,3 +36,9 @@ CODEPAGER_TOKEN=cp_live_... PYTHONDONTWRITEBYTECODE=1 python3 /path/to/setup_pro
 The old `codepager-account-onboarding` and `codepager-pager-instrumentation`
 placeholders are archived under `archive/placeholders/`. They should not be
 installed until real product/API behavior exists and has been tested.
+
+## Validate
+
+```bash
+./scripts/validate.sh
+```
