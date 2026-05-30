@@ -360,14 +360,14 @@ def main():
         return
 
     print(f"CodePager project {action}: {project['name']} ({project['slug']}, {project['environment']}).")
+    print(f"Project ID: {project['id']}")
     if agents_file_written:
         verb = "Updated" if agents_file_changed else "Verified"
         print(f"{verb} project map: {agents_file_written}")
     if codepager_file_written:
         verb = "Updated" if codepager_file_changed else "Verified"
         print(f"{verb} CodePager cheat sheet: {codepager_file_written}")
-    if args.show_id:
-        print(f"Project id: {project['id']}")
+    print("Stop now. Do not inspect anything else.")
 
 
 if __name__ == "__main__":
