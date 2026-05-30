@@ -92,7 +92,7 @@ def forbidden_reason(command):
     return ""
 
 
-def score_trace(events, skill_name, setup_script, project_root):
+def score_trace(events, skill_name, setup_script, project_root, max_tool_calls):
     failures = []
     tool_calls = [event for event in events if is_tool_call(event)]
     failed_results = [event for event in events if is_tool_result(event) and is_failure(event)]
@@ -139,6 +139,8 @@ def score_trace(events, skill_name, setup_script, project_root):
 
     if unnecessary_env_indexes:
         failures.append("setup command passed --env even though project name/root fast path should not")
+    if len(tool_calls) > max_tool_calls:
+        failures.append(f"tool call count exceeded {max_tool_calls}")
 
     score = 10
     score -= min(3, len(failed_results))
@@ -150,8 +152,8 @@ def score_trace(events, skill_name, setup_script, project_root):
         score -= min(3, len(forbidden_between))
     if unnecessary_env_indexes:
         score -= 1
-    if len(tool_calls) > 4:
-        score -= min(2, len(tool_calls) - 4)
+    if len(tool_calls) > max_tool_calls:
+        score -= min(2, len(tool_calls) - max_tool_calls)
     score = max(0, score)
 
     return {
@@ -173,10 +175,17 @@ def main():
     parser.add_argument("--skill-name", default="codepager-project-setup")
     parser.add_argument("--setup-script", default="scripts/setup_project.py")
     parser.add_argument("--project-root", required=True)
+    parser.add_argument("--max-tool-calls", type=int, default=4)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
-    report = score_trace(read_jsonl(args.trace), args.skill_name, args.setup_script, args.project_root)
+    report = score_trace(
+        read_jsonl(args.trace),
+        args.skill_name,
+        args.setup_script,
+        args.project_root,
+        args.max_tool_calls,
+    )
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
     else:
