@@ -15,6 +15,9 @@ require_file() {
 
 require_file AGENTS.md
 require_file ARCHITECTURE.md
+require_file DESIRES.md
+require_file LEARNINGS.md
+require_file MISTAKES.md
 require_file README.md
 require_file docs/harness-engineering.md
 require_file skills/codepager-project-setup/SKILL.md

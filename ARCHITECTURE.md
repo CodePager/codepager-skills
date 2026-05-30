@@ -14,6 +14,9 @@ prove they are alive, and escalate real incidents.
 ```text
 AGENTS.md
 ARCHITECTURE.md
+DESIRES.md
+LEARNINGS.md
+MISTAKES.md
 README.md
 docs/harness-engineering.md
 scripts/validate.sh

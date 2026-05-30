@@ -7,6 +7,7 @@ This repo is for public-facing CodePager skills, not the private control-plane a
 - [ARCHITECTURE.md](/srv/pager/repos/codepager-skills/ARCHITECTURE.md) for repo shape and boundaries.
 - [docs/harness-engineering.md](/srv/pager/repos/codepager-skills/docs/harness-engineering.md) for skill repo doctrine.
 - [README.md](/srv/pager/repos/codepager-skills/README.md) for public setup notes.
+- [MISTAKES.md](/srv/pager/repos/codepager-skills/MISTAKES.md), [LEARNINGS.md](/srv/pager/repos/codepager-skills/LEARNINGS.md), and [DESIRES.md](/srv/pager/repos/codepager-skills/DESIRES.md) before changing skill doctrine or evals.
 
 Current skills:
 

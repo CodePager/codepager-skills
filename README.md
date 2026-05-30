@@ -12,6 +12,9 @@ into different agent runtimes without carrying private control-plane code.
 
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [docs/harness-engineering.md](docs/harness-engineering.md)
+- [MISTAKES.md](MISTAKES.md)
+- [LEARNINGS.md](LEARNINGS.md)
+- [DESIRES.md](DESIRES.md)
 
 ## Active Skills
 
