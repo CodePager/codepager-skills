@@ -134,7 +134,8 @@ def agent_pointer_block(project):
 
 
 def codepager_doc(project):
-    command = f'PYTHONDONTWRITEBYTECODE=1 python3 scripts/setup_project.py --name "{project["name"]}" --project-root <project-root>'
+    command = f'PYTHONDONTWRITEBYTECODE=1 python3 <path-to-codepager-project-setup>/scripts/setup_project.py --name "{project["name"]}" --project-root <project-root>'
+    project_root_command = f'PYTHONDONTWRITEBYTECODE=1 python3 <path-to-setup_project.py> --name "{project["name"]}"'
     return "\n".join(
         [
             "# CODEPAGER.md",
@@ -149,8 +150,10 @@ def codepager_doc(project):
             "",
             "## What Exists Today",
             "- `codepager-project-setup` creates or finds the CodePager project and refreshes this file.",
-            "- Run it from the installed `codepager-project-setup` skill directory:",
+            "- If this agent has the skill installed, run:",
             f"  `{command}`",
+            "- If you only have the setup script, run it from this project root:",
+            f"  `{project_root_command}`",
             "",
             "## Rules",
             "- Use runtime-provided `CODEPAGER_TOKEN`; never commit tokens, paging credentials, webhook URLs, or private incident payloads.",
@@ -170,6 +173,15 @@ def is_runtime_global_map(path):
     return parent.name == "workspace" and grandparent.name.startswith(".")
 
 
+def looks_like_installed_skill_dir(path):
+    root = Path(path)
+    return (
+        (root / "SKILL.md").exists()
+        and (root / "scripts" / "setup_project.py").exists()
+        and root.name == "codepager-project-setup"
+    )
+
+
 def resolve_project_paths(project_root, project_map, agents_file, env):
     root = project_root or env.get("CODEPAGER_PROJECT_ROOT", "").strip()
     explicit_map = (
@@ -182,7 +194,10 @@ def resolve_project_paths(project_root, project_map, agents_file, env):
     if not root and explicit_map:
         root = os.path.dirname(os.path.abspath(os.path.expanduser(explicit_map)))
     if not root:
-        return "", "", ""
+        cwd = os.getcwd()
+        if looks_like_installed_skill_dir(cwd):
+            return "", "", ""
+        root = cwd
 
     root_abs = os.path.abspath(os.path.expanduser(root))
     agents_path = os.path.abspath(os.path.expanduser(explicit_map or os.path.join(root_abs, "AGENTS.md")))
@@ -302,7 +317,7 @@ def main():
     parser.add_argument("--name", default="", help="Project name, for example Cal.")
     parser.add_argument("--slug", default="", help="Project slug. Defaults to a slugified project name.")
     parser.add_argument("--environment", default="", help="Project environment. Defaults to CODEPAGER_PROJECT_ENVIRONMENT or production.")
-    parser.add_argument("--project-root", default="", help="Path to the real project repository/root. When set, writes <project-root>/CODEPAGER.md and updates <project-root>/AGENTS.md.")
+    parser.add_argument("--project-root", default="", help="Path to the real project repository/root. Defaults to the current directory unless running from an installed skill directory.")
     parser.add_argument("--project-map", default="", help="Path to a project-specific AGENTS.md/map file to point at CODEPAGER.md.")
     parser.add_argument("--agents-file", default="", help="Deprecated alias for --project-map. Must be project-specific, not a runtime-global AGENTS.md.")
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON including the project id.")
@@ -314,7 +329,10 @@ def main():
     token = env.get("CODEPAGER_TOKEN", "").strip()
     if not token:
         env_hint = args.env or env_path or "CODEPAGER_ENV_FILE, CODEPAGER_ENV, or .env"
-        raise SystemExit(f"CODEPAGER_TOKEN is missing. Generate a setup token in app.codepager.com/settings and add it to {env_hint}.")
+        raise SystemExit(
+            "CODEPAGER_TOKEN is missing. Generate a setup token in app.codepager.com/settings "
+            f"and add it to {env_hint}. Do not commit the token."
+        )
 
     name = args.name or env.get("CODEPAGER_PROJECT_NAME", "").strip()
     if not name:

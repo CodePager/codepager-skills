@@ -22,6 +22,13 @@ Do not list the project, inspect `CODEPAGER.md`, read memory, read project docs,
 or read the bundled script first. The setup script creates or finds the project,
 writes `<project-root>/CODEPAGER.md`, and updates the project map pointer.
 
+If the user says the current working directory is the project root and you are
+already there, this is also valid:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 <path-to-setup_project.py> --name "<project-name>"
+```
+
 ## Token
 
 Use runtime-provided `CODEPAGER_TOKEN`. If the installed skill directory has a
@@ -35,6 +42,8 @@ failure or when the user directly gave the env path.
 - `AGENTS.md` or `--project-map` gets only a tiny pointer to `CODEPAGER.md`.
 - Never write CodePager project state into the agent runtime's root
   `AGENTS.md`, host-level workspace map, or identity/memory files.
+- If the repository has no `AGENTS.md`, the script creates one with only the
+  CodePager pointer.
 
 This skill only bootstraps setup. Do not add watchers, repair dispatch,
 incident handling, paging rules, or extra docs.
