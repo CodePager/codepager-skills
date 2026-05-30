@@ -11,6 +11,7 @@ into different agent runtimes without carrying private control-plane code.
 ## Doctrine
 
 - [ARCHITECTURE.md](ARCHITECTURE.md)
+- [docs/exec-plans/active/codepager-skills-roadmap.md](docs/exec-plans/active/codepager-skills-roadmap.md)
 - [docs/harness-engineering.md](docs/harness-engineering.md)
 - [MISTAKES.md](MISTAKES.md)
 - [LEARNINGS.md](LEARNINGS.md)

@@ -41,3 +41,13 @@ project being set up.
 
 Fix: write public-safe state into the watched project only: `CODEPAGER.md` plus
 a tiny project-local `AGENTS.md` or `--project-map` pointer.
+
+## 2026-05-30 Added Harness Without The Active Roadmap
+
+I added `ARCHITECTURE.md`, harness doctrine, validation, and repo-local
+mistake/learning/desire files before adding an active exec plan for the actual
+multi-skill roadmap. That left future agents to infer the product sequence from
+scattered notes instead of one execution truth.
+
+Fix: keep `docs/exec-plans/active/codepager-skills-roadmap.md` as the active
+roadmap for project setup, instrumentation, onboarding, and CodePager pass work.

@@ -19,6 +19,7 @@ require_file DESIRES.md
 require_file LEARNINGS.md
 require_file MISTAKES.md
 require_file README.md
+require_file docs/exec-plans/active/codepager-skills-roadmap.md
 require_file docs/harness-engineering.md
 require_file skills/codepager-project-setup/SKILL.md
 require_file skills/codepager-project-setup/scripts/setup_project.py

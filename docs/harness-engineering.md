@@ -35,12 +35,17 @@ README.md
 scripts/validate.sh
 ```
 
+Earned because this repo is now planning multiple skills:
+
+```text
+docs/exec-plans/active/codepager-skills-roadmap.md
+```
+
 Optional only after repeated pain:
 
 ```text
 docs/quality.md
 docs/runbook.md
-docs/exec-plans/active/
 review personas
 CI proof gates
 ```

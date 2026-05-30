@@ -53,3 +53,9 @@ multi-skill framework yet.
 Only built and tested installable skills belong under `skills/`. Archived
 future-skill notes should not use the filename `SKILL.md`, because discovery
 tools may treat any `SKILL.md` as installable.
+
+## 2026-05-30 Multi-Skill Work Needs An Active Plan
+
+Once the repo is about a sequence of skills, not just one skill, the roadmap
+belongs in `docs/exec-plans/active/`. Keep the active plan focused on product
+order, acceptance, proof, and what is deliberately not built yet.

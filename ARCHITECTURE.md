@@ -18,6 +18,7 @@ DESIRES.md
 LEARNINGS.md
 MISTAKES.md
 README.md
+docs/exec-plans/active/codepager-skills-roadmap.md
 docs/harness-engineering.md
 scripts/validate.sh
 skills/
