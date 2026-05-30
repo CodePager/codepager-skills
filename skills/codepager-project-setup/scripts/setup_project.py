@@ -214,6 +214,16 @@ def codepager_section_bounds(content):
     return match.start(), match.end() + next_heading.start()
 
 
+def codepager_insert_at(content):
+    match = re.search(r"(?m)^## Read this map\s*$", content)
+    if not match:
+        return len(content)
+    next_heading = re.search(r"(?m)^## (?!Read this map\b).*$", content[match.end():])
+    if not next_heading:
+        return len(content)
+    return match.end() + next_heading.start()
+
+
 def upsert_agent_pointer(path, project):
     slug = project["slug"]
     expanded = os.path.expanduser(path)
@@ -256,7 +266,11 @@ def upsert_agent_pointer(path, project):
                     "Review it manually instead of overwriting project instructions."
                 )
         else:
-            content = content.rstrip() + "\n\n" + block
+            insert_at = codepager_insert_at(content)
+            if insert_at >= len(content):
+                content = content.rstrip() + "\n\n" + block
+            else:
+                content = content[:insert_at].rstrip() + "\n\n" + block + content[insert_at:].lstrip()
 
     with open(expanded, "w", encoding="utf-8") as handle:
         handle.write(content)

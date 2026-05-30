@@ -31,6 +31,9 @@ target project root and add a tiny pointer in the target project's own
 `AGENTS.md`. If the project uses a different project-specific agent map, pass
 `--project-map <path>`. If the command succeeds, reply and stop.
 
+If the user gives the project root, do not list or inspect `CODEPAGER.md`
+before setup; it may not exist yet.
+
 ## Required Environment
 
 Read the target agent env safely. Do not print token values.
