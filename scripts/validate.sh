@@ -15,12 +15,7 @@ require_file() {
 
 require_file AGENTS.md
 require_file ARCHITECTURE.md
-require_file DESIRES.md
-require_file LEARNINGS.md
-require_file MISTAKES.md
 require_file README.md
-require_file docs/exec-plans/active/codepager-skills-roadmap.md
-require_file docs/harness-engineering.md
 require_file skills/codepager-project-setup/SKILL.md
 require_file skills/codepager-project-setup/scripts/setup_project.py
 
@@ -44,8 +39,14 @@ if find . \( -path '*/__pycache__' -o -name '*.pyc' \) -print | grep -q .; then
   exit 1
 fi
 
+if [ -d docs ] || [ -d archive ]; then
+  echo "public skill repo should not carry private harness docs or archived placeholders" >&2
+  find docs archive -maxdepth 4 -type f 2>/dev/null >&2 || true
+  exit 1
+fi
+
 if grep -RInE 'Jetclaw|OpenClaw|assistant\.env|/root/|\.openclaw|DroidFi|score_project_setup_trace' \
-  AGENTS.md ARCHITECTURE.md README.md docs skills archive >/tmp/codepager-skills-runtime-specific.txt; then
+  AGENTS.md ARCHITECTURE.md README.md skills >/tmp/codepager-skills-runtime-specific.txt; then
   echo "runtime-specific or overfit strings found:" >&2
   cat /tmp/codepager-skills-runtime-specific.txt >&2
   exit 1

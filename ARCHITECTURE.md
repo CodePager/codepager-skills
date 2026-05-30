@@ -14,18 +14,12 @@ prove they are alive, and escalate real incidents.
 ```text
 AGENTS.md
 ARCHITECTURE.md
-DESIRES.md
-LEARNINGS.md
-MISTAKES.md
 README.md
-docs/exec-plans/active/codepager-skills-roadmap.md
-docs/harness-engineering.md
 scripts/validate.sh
 skills/
   codepager-project-setup/
     SKILL.md
     scripts/setup_project.py
-archive/placeholders/
 ```
 
 ## Flow
@@ -40,7 +34,6 @@ archive/placeholders/
 ## Boundaries
 
 - `skills/` contains only built and tested installable skills.
-- `archive/placeholders/` contains future-skill notes, not installable skills.
 - Skill instructions stay short; deterministic behavior belongs in scripts.
 - Skills must not write private tokens, paging credentials, webhook URLs, or
   incident payloads into repositories.
@@ -51,7 +44,7 @@ archive/placeholders/
 
 - Every active skill has a `SKILL.md`.
 - Repeated or fragile behavior goes in `scripts/`.
-- Repo-level doctrine goes in `docs/`, not inside individual skills.
+- Roadmap, evals, and future-skill doctrine live in the private harness repo.
 - One command, `./scripts/validate.sh`, proves the repo is shaped correctly.
 
 ## Hazards
@@ -61,5 +54,7 @@ archive/placeholders/
 - Agent-specific paths make public skills brittle.
 - Missing network/error handling turns product setup failures into Python
   tracebacks.
+- Private eval doctrine or raw traces in this public repo can leak operational
+  details.
 - Generated docs that contain tokens or private incident data are security
   failures.
