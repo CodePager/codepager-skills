@@ -2,12 +2,32 @@
 
 Public skill collection for CodePager.
 
-This repo exists separately from the private CodePager site/app so agents can learn how to onboard accounts and instrument sources before the hosted product is fully mature.
+CodePager gives watchdog agents, coding agents, and production automation a
+clear way to detect failures, prove they are alive, and escalate real incidents.
 
-Start with [INSTALL.md](INSTALL.md) if you are setting up CodePager in a real project.
+This repo stays separate from the private CodePager app so skills can be copied
+into different agent runtimes without carrying private control-plane code.
 
-## Skills
+## Active Skills
 
-- `codepager-account-onboarding`
-- `codepager-project-setup`
-- `codepager-pager-instrumentation`
+- [codepager-project-setup](skills/codepager-project-setup/SKILL.md): create or
+  find a CodePager project, then write the project-local `CODEPAGER.md` cheat
+  sheet and tiny `AGENTS.md` pointer.
+
+## Setup Token
+
+Generate a setup token in `app.codepager.com/settings`, provide it to the agent
+runtime as `CODEPAGER_TOKEN`, and do not commit it.
+
+For agents without skill support, run the bundled setup script from the project
+root:
+
+```bash
+CODEPAGER_TOKEN=cp_live_... PYTHONDONTWRITEBYTECODE=1 python3 /path/to/setup_project.py --name "<project name>"
+```
+
+## Archived Placeholders
+
+The old `codepager-account-onboarding` and `codepager-pager-instrumentation`
+placeholders are archived under `archive/placeholders/`. They should not be
+installed until real product/API behavior exists and has been tested.
